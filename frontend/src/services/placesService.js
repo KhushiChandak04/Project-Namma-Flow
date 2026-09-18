@@ -92,10 +92,8 @@ export async function searchPlacesForCategory(category, zone = 'Bangalore', maxR
   const query = buildOverpassQuery(osmTag, bbox, maxResults)
 
   try {
-    const response = await fetch(OVERPASS_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `data=${encodeURIComponent(query)}`,
+    const response = await fetch(`${OVERPASS_URL}?data=${encodeURIComponent(query)}`, {
+      headers: { Accept: 'application/json' },
     })
 
     if (!response.ok) {

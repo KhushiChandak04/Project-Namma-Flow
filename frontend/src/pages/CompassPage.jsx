@@ -30,32 +30,13 @@ export default function CompassPage() {
   const [activePlace, setActivePlace] = useState("all");
   const [searchOpen, setSearchOpen] = useState(false);
   const [recentSearches, setRecentSearches] = useState([]);
-  const vibeFiltersRef = useRef(null);
+  const searchRequestRef = useRef(0);
   const searchInputRef = useRef(null);
   const searchSurfaceRef = useRef(null);
 
   useEffect(() => {
     if (searchOpen) searchInputRef.current?.focus();
   }, [searchOpen]);
-
-  useEffect(() => {
-    function clearVibeSelection(event) {
-      if (!activeCategory || vibeFiltersRef.current?.contains(event.target))
-        return;
-
-      setActiveCategory("");
-      if (
-        categoryFilters.some(
-          ([label]) => label.toLowerCase() === query.toLowerCase(),
-        )
-      )
-        setQuery("");
-    }
-
-    document.addEventListener("pointerdown", clearVibeSelection);
-    return () =>
-      document.removeEventListener("pointerdown", clearVibeSelection);
-  }, [activeCategory, query]);
 
   useEffect(() => {
     if (!searchOpen) return undefined;
@@ -96,9 +77,14 @@ export default function CompassPage() {
       ].slice(0, 4),
     );
     try {
-      setActivePlace("all");
       setActiveCategory("");
-      setResult(await searchVibe({ vibeQuery: query, currentZone }));
+      setResult(
+        await searchVibe({
+          vibeQuery: query,
+          currentZone,
+          selectedZone: "all",
+        }),
+      );
       setStatus("success");
     } catch (requestError) {
       setError(requestError.message || "Unable to search right now.");
@@ -109,20 +95,61 @@ export default function CompassPage() {
   const suggestions = (result?.suggestions ?? staticPlaces).filter(
     (suggestion) => {
       const matchesCategory =
-        !activeCategory || suggestion.category === activeCategory;
+        !activeCategory ||
+        suggestion.category === activeCategory ||
+        (activeCategory === "cafe" && suggestion.category === "cafes") ||
+        (activeCategory === "park" && suggestion.category === "parks") ||
+        (activeCategory === "bookstore" && suggestion.category === "bookstores");
       const matchesPlace =
-        activePlace === "all" || suggestion.zoneId === activePlace;
+        activePlace === "all" ||
+        suggestion.zoneId === activePlace ||
+        suggestion.zone?.toLowerCase() === activePlace ||
+        suggestion.zone?.toLowerCase() === activePlace;
       return matchesCategory && matchesPlace;
     },
   );
-  const currentCongestion = getCongestionForZone(currentZone);
+  const displayZone = activePlace === "all" ? currentZone : activePlace;
+  const currentCongestion = getCongestionForZone(displayZone);
   function chooseCategory(label, value) {
     setActiveCategory(value);
     setQuery(label);
+    const requestId = ++searchRequestRef.current;
     setResult(null);
+    setError("");
+    setStatus("loading");
+    searchVibe({ vibeQuery: value, currentZone, selectedZone: activePlace })
+      .then((nextResult) => {
+        if (requestId !== searchRequestRef.current) return;
+        setResult(nextResult);
+      })
+      .catch((requestError) => {
+        if (requestId !== searchRequestRef.current) return;
+        setError(requestError.message || "Unable to search right now.");
+      })
+      .finally(() => {
+        if (requestId === searchRequestRef.current) setStatus("success");
+      });
   }
   function choosePlace(value) {
+    const requestId = ++searchRequestRef.current;
     setActivePlace(value);
+    if (activeCategory) {
+      setResult(null);
+      setError("");
+      setStatus("loading");
+      searchVibe({ vibeQuery: activeCategory, currentZone, selectedZone: value })
+        .then((nextResult) => {
+          if (requestId !== searchRequestRef.current) return;
+          setResult(nextResult);
+        })
+        .catch((requestError) => {
+          if (requestId !== searchRequestRef.current) return;
+          setError(requestError.message || "Unable to search right now.");
+        })
+        .finally(() => {
+          if (requestId === searchRequestRef.current) setStatus("success");
+        });
+    }
   }
   function focusSearch(event) {
     event.preventDefault();
@@ -244,7 +271,6 @@ export default function CompassPage() {
         </form>
       )}
       <div
-        ref={vibeFiltersRef}
         className="mt-5 flex flex-wrap items-center gap-2"
       >
         <span className="mr-1 text-xs font-black uppercase tracking-[0.14em] text-muted">
@@ -305,18 +331,54 @@ export default function CompassPage() {
       )}
       <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {suggestions.map((suggestion) => {
-          const congestion = getCongestionForZone(suggestion.zoneId);
+          const zoneKey = suggestion.zoneId || suggestion.zone;
+          const congestion = suggestion.congestionPercent ?? getCongestionForZone(zoneKey);
           return (
             <SuggestionCard
               key={suggestion.id}
               suggestion={suggestion}
               congestion={congestion}
-              zoneName={findZone(suggestion.zoneId)?.name}
+              zoneName={findZone(zoneKey)?.name || suggestion.zone}
               showDiscount={congestion < currentCongestion}
             />
           );
         })}
       </div>
+      {result?.verdict && (
+        <div className="mt-8 rounded-[18px] border-2 border-ink bg-[#FFC22E] p-5">
+          <p className="text-xs font-black uppercase tracking-[0.14em]">Compass verdict</p>
+          <p className="mt-2 font-display text-xl font-black">{result.verdict.text}</p>
+          {result.verdict.incentive && (
+            <p className="mt-2 text-sm font-extrabold">Incentive: {result.verdict.incentive}</p>
+          )}
+        </div>
+      )}
+      {result?.redirectSuggestions?.length > 0 && (
+        <>
+          <div className="mt-8 border-b-2 border-ink pb-4">
+            <p className="font-display text-2xl font-extrabold">
+              Try {result.alternative?.name} instead
+            </p>
+            <p className="mt-1 text-sm font-semibold text-muted">
+              Similar options with a lighter simulated traffic load.
+            </p>
+          </div>
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {result.redirectSuggestions.map((suggestion) => {
+              const zoneKey = suggestion.zoneId || suggestion.zone;
+              return (
+                <SuggestionCard
+                  key={`redirect-${suggestion.id}`}
+                  suggestion={suggestion}
+                  congestion={suggestion.congestionPercent}
+                  zoneName={findZone(zoneKey)?.name || suggestion.zone}
+                  showDiscount
+                />
+              );
+            })}
+          </div>
+        </>
+      )}
     </section>
   );
 }

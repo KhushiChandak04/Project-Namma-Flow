@@ -47,6 +47,48 @@ export const vibes = {
       zoneId: 'indiranagar',
       discount: null,
     },
+    {
+      id: 'cafe-7',
+      name: 'Third Wave Coffee (80ft Road)',
+      category: 'cafe',
+      zoneId: 'koramangala',
+      discount: '10% demo offer',
+    },
+    {
+      id: 'cafe-8',
+      name: 'Filter Coffee House (5th Block)',
+      category: 'cafe',
+      zoneId: 'koramangala',
+      discount: '10% demo offer',
+    },
+    {
+      id: 'cafe-9',
+      name: 'Lake Breeze Coffee (Varthur Road)',
+      category: 'cafe',
+      zoneId: 'varthur',
+      discount: '15% demo offer',
+    },
+    {
+      id: 'cafe-10',
+      name: 'Windmills Coffee Garden',
+      category: 'cafe',
+      zoneId: 'whitefield',
+      discount: null,
+    },
+    {
+      id: 'cafe-11',
+      name: 'ITPL Brew Lab',
+      category: 'cafe',
+      zoneId: 'whitefield',
+      discount: null,
+    },
+    {
+      id: 'cafe-12',
+      name: '12th Main Coffee Room',
+      category: 'cafe',
+      zoneId: 'indiranagar',
+      discount: null,
+    },
   ],
   music: [
     {

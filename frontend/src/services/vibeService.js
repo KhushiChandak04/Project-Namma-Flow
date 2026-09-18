@@ -5,6 +5,7 @@ import {
   getCongestionLabel,
 } from '../utils/helpers.js'
 import { postJson } from './api.js'
+import { getCompassResult } from './compassService.js'
 export { getAvailableVibes } from '../logic/compassLogic.js'
 
 /**
@@ -61,16 +62,20 @@ function computeDiscount(currentCongestion, targetCongestion) {
  *   calmer alternatives.
  * - If current zone is low congestion (< 50%): highlights local clear-traffic spots with zero travel delay.
  */
-export async function searchVibe(queryOrOptions, selectedZone) {
-  const { vibeQuery, currentZone } =
+export async function searchVibe(queryOrOptions, selectedPlace) {
+  const { vibeQuery, currentZone, selectedZone } =
     typeof queryOrOptions === 'object'
       ? queryOrOptions
-      : { vibeQuery: queryOrOptions, currentZone: selectedZone }
+      : { vibeQuery: queryOrOptions, currentZone: selectedPlace }
 
   const useMockApi =
     typeof import.meta !== 'undefined' && import.meta.env
       ? import.meta.env.VITE_USE_MOCK_API !== 'false'
       : true
+
+  if (useMockApi) {
+    return getCompassResult(vibeQuery, currentZone, selectedZone || 'all')
+  }
 
   if (!useMockApi) {
     return postJson('/vibe-search', { vibeQuery, currentZone })
