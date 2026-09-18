@@ -17,6 +17,7 @@
 - [x] `frontend/src/data/routes.js`
 - [x] `frontend/src/data/vibes.js`
 - [x] Central data exports
+- [x] Deterministic official demo responses
 
 ## PHASE 3 — HELPERS
 
@@ -30,6 +31,8 @@
 
 ## PHASE 4 — TEAM INTEGRATION
 
+- [x] Grid/Compass starter component interfaces
+- [x] Leaflet map integration surfaces
 - [ ] Final Grid UI and map
 - [ ] Final Grid logic and `/trip-plan` integration
 - [ ] Final Compass UI and map

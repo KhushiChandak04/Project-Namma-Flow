@@ -1,3 +1,4 @@
+// TODO: Khushi — configure the AWS integration boundary when deployment credentials and a model contract exist.
 // Bedrock is intentionally not called until AWS credentials and a model contract exist.
 export async function classifyVibe(query) {
   return { category: classifyLocally(query), source: 'local-demo' }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import MapPlaceholder from '../components/maps/MapPlaceholder.jsx'
+import CompassMap from '../components/maps/CompassMap.jsx'
 import { searchVibe } from '../services/vibeService.js'
 
 export default function CompassPage() {
@@ -49,7 +49,7 @@ export default function CompassPage() {
           {result?.suggestions.map((suggestion) => <div key={suggestion.id} className="mt-4 rounded-lg border border-slate-800 p-4"><div className="flex justify-between gap-3"><p className="font-medium">{suggestion.name}</p><span className="text-xs text-emerald-300">{suggestion.discount}</span></div><p className="mt-1 text-sm text-slate-400">Recommended zone: {suggestion.zoneId}</p></div>)}
           {result?.recommendedZone && <p className="mt-4 text-sm text-violet-200">Try {result.recommendedZone} for a lower-congestion alternative.</p>}
         </div>
-        <MapPlaceholder title="Compass map — ready for suggestion markers" />
+        <CompassMap recommendedZone={result?.recommendedZone ?? 'koramangala'} />
       </div>
     </section>
   )

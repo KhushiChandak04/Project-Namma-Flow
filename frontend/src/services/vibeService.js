@@ -1,8 +1,11 @@
-import { vibes, zones } from '../data/index.js'
+import { mockResponses, vibes, zones } from '../data/index.js'
 import { mapVibeQueryToCategory, sortSuggestionsByCongestion } from '../utils/helpers.js'
 import { postJson } from './api.js'
 
-export async function searchVibe({ vibeQuery, currentZone }) {
+export async function searchVibe(queryOrOptions, selectedZone) {
+  const { vibeQuery, currentZone } = typeof queryOrOptions === 'object'
+    ? queryOrOptions
+    : { vibeQuery: queryOrOptions, currentZone: selectedZone }
   const useMockApi = import.meta.env.VITE_USE_MOCK_API !== 'false'
 
   if (!useMockApi) {
@@ -19,5 +22,6 @@ export async function searchVibe({ vibeQuery, currentZone }) {
     recommendedZone,
     discount: suggestions[0]?.discount ?? null,
     currentZone: currentZone ?? null,
+    demoResponse: category === 'music' ? mockResponses.liveMusic : null,
   }
 }

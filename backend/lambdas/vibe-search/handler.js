@@ -31,7 +31,7 @@ export async function handler(event = {}) {
     const body = typeof event.body === 'string' ? JSON.parse(event.body || '{}') : event.body ?? {}
     if (!body.vibeQuery) return response(400, { error: 'vibeQuery is required' })
 
-    // TODO: Replace local classification with Amazon Bedrock once model access is configured.
+    // TODO: Shravya — replace local classification with Amazon Bedrock once configured.
     const { category } = await classifyVibe(body.vibeQuery)
     const results = suggestions[category] ?? []
     return response(200, {

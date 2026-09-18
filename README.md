@@ -26,6 +26,8 @@ docs/                     Architecture and team contracts
 scripts/                  Repository smoke tests
 ```
 
+The frontend includes Leaflet map surfaces in `frontend/src/components/maps/`. `frontend/src/data/mockResponses.js` contains deterministic, clearly simulated contracts for the three demo journeys. See [docs/TECH_STACK.md](docs/TECH_STACK.md) for implemented versus planned technologies.
+
 ## Local setup
 
 Requirements: Node.js and npm.
@@ -38,7 +40,7 @@ npm run dev
 
 For PowerShell, `Copy-Item .env.example frontend\.env.local` is equivalent to `copy`.
 
-Run those commands from the repository root. The root `package.json` is the team entry point and delegates commands to `frontend/`. Do not use `npm --prefix frontend run dev`; that can leave Vite resolving the repository root instead of the frontend directory.
+Run those commands from the repository root. The root `package.json` is the team entry point and delegates commands to `frontend/`. Do not start Vite with a path-prefixed npm command; use the root script so Vite receives the frontend workspace as its working directory.
 
 The direct frontend equivalent is:
 

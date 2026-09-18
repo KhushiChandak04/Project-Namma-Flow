@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import MapPlaceholder from '../components/maps/MapPlaceholder.jsx'
+import GridMap from '../components/maps/GridMap.jsx'
 import { zones } from '../data/zones.js'
 import { getTripPlan } from '../services/tripService.js'
 
@@ -70,7 +70,7 @@ export default function GridPage() {
             </div>
             <div className="mt-5 flex flex-wrap gap-2">{result.route.segments.map((segment) => <span key={`${segment.mode}-${segment.label}`} className="rounded-md border border-slate-700 px-3 py-2 text-sm">{segment.mode}</span>)}</div>
           </div>}
-          <MapPlaceholder title="Grid map — ready for Leaflet integration" />
+          <GridMap selectedZones={[origin.toLowerCase(), destination.toLowerCase()]} />
         </div>
       </div>
     </section>

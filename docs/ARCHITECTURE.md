@@ -6,7 +6,7 @@ The browser application lives in `frontend/` and uses React, Vite, and Tailwind 
 
 React pages call `frontend/src/services/tripService.js` and `vibeService.js`. Those services default to local data and can switch to HTTP through `VITE_API_BASE_URL`; components do not own fetch calls or backend credentials.
 
-The map surface is isolated behind `frontend/src/components/maps/MapPlaceholder.jsx` so the frontend owners can replace it with Leaflet or MapLibre without coupling map code to business rules.
+The map surface is isolated behind `frontend/src/components/maps/GridMap.jsx` and `CompassMap.jsx`, so the frontend owners can refine Leaflet behavior without coupling map code to business rules.
 
 ## Planned AWS path
 
