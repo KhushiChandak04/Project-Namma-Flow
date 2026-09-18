@@ -1,0 +1,16 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title">
+  <title id="title">Red Bangalore city bus</title>
+  <ellipse cx="200" cy="255" rx="185" ry="13" fill="#221B14" opacity=".08"/>
+  <rect x="45" y="90" width="310" height="120" rx="18" fill="#E1432B" stroke="#221B14" stroke-width="6"/>
+  <rect x="45" y="90" width="310" height="22" rx="10" fill="#F2711C" stroke="#221B14" stroke-width="4"/>
+  <rect x="65" y="122" width="55" height="42" rx="6" fill="#F4ECD8" stroke="#221B14" stroke-width="4"/>
+  <rect x="132" y="122" width="55" height="42" rx="6" fill="#F4ECD8" stroke="#221B14" stroke-width="4"/>
+  <rect x="199" y="122" width="55" height="42" rx="6" fill="#F4ECD8" stroke="#221B14" stroke-width="4"/>
+  <rect x="266" y="122" width="55" height="42" rx="6" fill="#F4ECD8" stroke="#221B14" stroke-width="4"/>
+  <rect x="150" y="178" width="100" height="18" rx="4" fill="#FFC22E" stroke="#221B14" stroke-width="4"/>
+  <line x1="320" y1="112" x2="320" y2="205" stroke="#221B14" stroke-width="4"/>
+  <rect x="40" y="200" width="320" height="12" rx="4" fill="#221B14"/>
+  <circle cx="105" cy="222" r="28" fill="#221B14"/><circle cx="105" cy="222" r="12" fill="#F4ECD8"/>
+  <circle cx="295" cy="222" r="28" fill="#221B14"/><circle cx="295" cy="222" r="12" fill="#F4ECD8"/>
+  <circle cx="352" cy="180" r="8" fill="#FFC22E" stroke="#221B14" stroke-width="3"/>
+</svg>

@@ -1,0 +1,14 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title">
+  <title id="title">Yellow Bangalore auto rickshaw</title>
+  <ellipse cx="200" cy="260" rx="170" ry="14" fill="#221B14" opacity=".08"/>
+  <path d="M90 200V140Q90 110 130 105h120q40 3 50 45l5 50Z" fill="#FFC22E" stroke="#221B14" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M95 108Q130 60 200 58q70 2 95 50" fill="none" stroke="#221B14" stroke-width="6" stroke-linecap="round"/>
+  <path d="M100 108q35-30 100-32t90 32v10q-25-28-90-30t-100 30Z" fill="#E1432B" stroke="#221B14" stroke-width="4"/>
+  <path d="M108 145q4-27 32-33v33Z" fill="#F4ECD8" stroke="#221B14" stroke-width="5" stroke-linejoin="round"/>
+  <rect x="145" y="150" width="140" height="18" rx="4" fill="#E1432B" stroke="#221B14" stroke-width="4"/>
+  <path d="M160 168v32h80v-32" fill="none" stroke="#221B14" stroke-width="5"/>
+  <circle cx="100" cy="175" r="10" fill="#F4ECD8" stroke="#221B14" stroke-width="4"/>
+  <circle cx="130" cy="222" r="30" fill="#221B14"/><circle cx="130" cy="222" r="13" fill="#F4ECD8"/>
+  <circle cx="270" cy="222" r="30" fill="#221B14"/><circle cx="270" cy="222" r="13" fill="#F4ECD8"/>
+  <rect x="290" y="195" width="18" height="14" rx="3" fill="#221B14"/>
+</svg>
