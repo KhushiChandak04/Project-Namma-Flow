@@ -1,27 +1,48 @@
 /**
  * Demo-only vibe mapping.
- * Real places / live availability are intentionally not embedded here.
- * Bedrock can replace keyword extraction later through /vibe-search.
+ * Rich Bangalore places mapped across all 4 zones:
+ * Indiranagar, Koramangala, Whitefield, and Varthur.
  */
 export const vibes = {
   cafe: [
     {
       id: 'cafe-1',
-      name: 'Cozy Cafe Cluster',
+      name: 'Cozy Cafe Cluster (80ft Road)',
       category: 'cafe',
       zoneId: 'koramangala',
       discount: '10% demo offer',
     },
     {
       id: 'cafe-2',
-      name: 'Quiet Cafe Corner',
+      name: 'Quiet Cafe Corner (Greenwood)',
       category: 'cafe',
       zoneId: 'varthur',
       discount: '15% demo offer',
     },
     {
       id: 'cafe-3',
-      name: 'Work-Friendly Cafe',
+      name: 'Work-Friendly Cafe (12th Main)',
+      category: 'cafe',
+      zoneId: 'indiranagar',
+      discount: null,
+    },
+    {
+      id: 'cafe-4',
+      name: 'Windmills Craft & Artisan Cafe',
+      category: 'cafe',
+      zoneId: 'whitefield',
+      discount: null,
+    },
+    {
+      id: 'cafe-5',
+      name: 'Lakeview Garden Brews',
+      category: 'cafe',
+      zoneId: 'varthur',
+      discount: '15% demo offer',
+    },
+    {
+      id: 'cafe-6',
+      name: 'Araku Coffee & Roastery',
       category: 'cafe',
       zoneId: 'indiranagar',
       discount: null,
@@ -30,37 +51,72 @@ export const vibes = {
   music: [
     {
       id: 'music-1',
-      name: 'Live Music District',
+      name: 'Live Music District (Fandom)',
       category: 'music',
       zoneId: 'koramangala',
       discount: '10% demo offer',
     },
     {
       id: 'music-2',
-      name: 'Acoustic Nights Venue',
+      name: 'Acoustic Nights Open Stage',
       category: 'music',
       zoneId: 'varthur',
       discount: '15% demo offer',
     },
     {
       id: 'music-3',
-      name: 'Indiranagar Music Spot',
+      name: 'Indiranagar Music Spot (Humming Tree)',
       category: 'music',
       zoneId: 'indiranagar',
       discount: null,
+    },
+    {
+      id: 'music-4',
+      name: 'Whitefield Jazz Club',
+      category: 'music',
+      zoneId: 'whitefield',
+      discount: null,
+    },
+    {
+      id: 'music-5',
+      name: 'Lakeside Sunset Sessions',
+      category: 'music',
+      zoneId: 'varthur',
+      discount: '15% demo offer',
     },
   ],
   bookstore: [
     {
       id: 'bookstore-1',
-      name: 'Independent Bookstore',
+      name: 'Independent Bookstore & Cafe',
       category: 'bookstore',
       zoneId: 'koramangala',
       discount: '10% demo offer',
     },
     {
       id: 'bookstore-2',
-      name: 'Quiet Reading Hub',
+      name: 'Quiet Reading Hub & Library',
+      category: 'bookstore',
+      zoneId: 'varthur',
+      discount: '15% demo offer',
+    },
+    {
+      id: 'bookstore-3',
+      name: 'The Bookworm Indiranagar',
+      category: 'bookstore',
+      zoneId: 'indiranagar',
+      discount: null,
+    },
+    {
+      id: 'bookstore-4',
+      name: 'Whitefield Readers Guild',
+      category: 'bookstore',
+      zoneId: 'whitefield',
+      discount: null,
+    },
+    {
+      id: 'bookstore-5',
+      name: 'Tranquil Nook Reading Garden',
       category: 'bookstore',
       zoneId: 'varthur',
       discount: '15% demo offer',
@@ -69,17 +125,103 @@ export const vibes = {
   park: [
     {
       id: 'park-1',
-      name: 'Quiet Green Space',
+      name: 'Quiet Green Space (Varthur Lake Walk)',
       category: 'park',
       zoneId: 'varthur',
       discount: '15% demo offer',
     },
     {
       id: 'park-2',
-      name: 'City Park Area',
+      name: 'City Park Area (Koramangala 4th Block)',
       category: 'park',
       zoneId: 'koramangala',
       discount: '10% demo offer',
+    },
+    {
+      id: 'park-3',
+      name: 'Defence Colony Peace Park',
+      category: 'park',
+      zoneId: 'indiranagar',
+      discount: null,
+    },
+    {
+      id: 'park-4',
+      name: 'Inner Circle Heritage Park',
+      category: 'park',
+      zoneId: 'whitefield',
+      discount: null,
+    },
+    {
+      id: 'park-5',
+      name: 'Panathur Nature Grove',
+      category: 'park',
+      zoneId: 'varthur',
+      discount: '15% demo offer',
+    },
+    {
+      id: 'park-6',
+      name: 'Regional Park 5th Block',
+      category: 'park',
+      zoneId: 'koramangala',
+      discount: '10% demo offer',
+    },
+    {
+      id: 'park-7',
+      name: '100ft Road Canopy Park',
+      category: 'park',
+      zoneId: 'indiranagar',
+      discount: null,
+    },
+    {
+      id: 'park-8',
+      name: 'Sheelavanthakere Lake & Nature Park',
+      category: 'park',
+      zoneId: 'whitefield',
+      discount: null,
+    },
+  ],
+  restaurant: [
+    {
+      id: 'rest-1',
+      name: 'Lakeside Family Retreat',
+      category: 'restaurant',
+      zoneId: 'varthur',
+      discount: '15% demo offer',
+    },
+    {
+      id: 'rest-2',
+      name: 'Garden Family Bistro',
+      category: 'restaurant',
+      zoneId: 'koramangala',
+      discount: '10% demo offer',
+    },
+    {
+      id: 'rest-3',
+      name: 'Heritage Family Dining (12th Main)',
+      category: 'restaurant',
+      zoneId: 'indiranagar',
+      discount: null,
+    },
+    {
+      id: 'rest-4',
+      name: 'The Palms Courtyard Dining',
+      category: 'restaurant',
+      zoneId: 'whitefield',
+      discount: null,
+    },
+    {
+      id: 'rest-5',
+      name: 'Greenwood Country Diner',
+      category: 'restaurant',
+      zoneId: 'varthur',
+      discount: '15% demo offer',
+    },
+    {
+      id: 'rest-6',
+      name: '100ft Global Kitchen',
+      category: 'restaurant',
+      zoneId: 'indiranagar',
+      discount: null,
     },
   ],
 }

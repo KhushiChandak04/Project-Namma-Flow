@@ -4,6 +4,9 @@ frontend/dist/
 .env
 .env.local
 .env.*.local
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
 !.env.example
 .vscode/
 .vite/

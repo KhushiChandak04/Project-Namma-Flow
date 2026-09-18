@@ -132,10 +132,11 @@ export function mapVibeQueryToCategory(query) {
   const text = normalizeText(query)
 
   const keywordMap = {
-    cafe: ['cafe', 'coffee', 'cozy cafe', 'study cafe', 'work cafe', 'wifi'],
-    music: ['music', 'live music', 'concert', 'band', 'acoustic', 'gig'],
-    bookstore: ['book', 'books', 'bookstore', 'reading', 'literature'],
-    park: ['park', 'green', 'quiet outdoor', 'garden', 'walk'],
+    cafe: ['cafe', 'coffee', 'cozy cafe', 'cozy', 'study cafe', 'work cafe', 'wifi'],
+    music: ['music', 'live music', 'concert', 'band', 'acoustic', 'gig', 'pub', 'nightlife'],
+    bookstore: ['book', 'books', 'bookstore', 'reading', 'literature', 'library'],
+    park: ['park', 'parks', 'green', 'quiet outdoor', 'garden', 'walk', 'nature', 'quiet park', 'peaceful'],
+    restaurant: ['restaurant', 'restaurants', 'family restaurant', 'dining', 'food', 'dinner', 'lunch', 'eat', 'eats', 'bistro'],
   }
 
   for (const [category, keywords] of Object.entries(keywordMap)) {
@@ -169,3 +170,21 @@ export function getCongestionLabel(value) {
   if (value >= 50) return 'Moderate'
   return 'Low'
 }
+
+/**
+ * Maps a congestion percentage to a color representation.
+ * - red if >80
+ * - orange if 60-80
+ * - yellow if 40-60
+ * - green if <40
+ *
+ * @param {number} percentage - Congestion percentage (0-100)
+ * @returns {'red' | 'orange' | 'yellow' | 'green'} Color name
+ */
+export const getCongestionColor = (percentage) => {
+  if (percentage > 80) return 'red'
+  if (percentage >= 60) return 'orange'
+  if (percentage >= 40) return 'yellow'
+  return 'green'
+}
+

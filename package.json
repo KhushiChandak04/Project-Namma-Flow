@@ -10,6 +10,7 @@
     "dev": "npm run dev --workspace frontend",
     "build": "npm run build --workspace frontend",
     "smoke": "npm run smoke --workspace frontend",
+    "test:compass": "node scripts/testCompass.mjs",
     "install:frontend": "npm install --workspace frontend"
   }
 }
