@@ -5,6 +5,7 @@ import { getCongestionForZone } from "../utils/helpers.js";
 import { findZone, zones } from "../data/zones.js";
 import RevealHeadline from "../components/common/RevealHeadline.jsx";
 import { vibes } from "../data/vibes.js";
+import CompassMap from "../components/maps/CompassMap.jsx";
 
 const staticPlaces = Object.values(vibes).flat();
 const categoryFilters = [
@@ -29,7 +30,15 @@ export default function CompassPage() {
   const [activeCategory, setActiveCategory] = useState("");
   const [activePlace, setActivePlace] = useState("all");
   const [searchOpen, setSearchOpen] = useState(false);
-  const [recentSearches, setRecentSearches] = useState([]);
+  const [recentSearches, setRecentSearches] = useState(() => {
+    try {
+      const saved = window.localStorage.getItem("namma-flow-recent-searches");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
   const searchRequestRef = useRef(0);
   const searchInputRef = useRef(null);
   const searchSurfaceRef = useRef(null);
@@ -68,14 +77,19 @@ export default function CompassPage() {
     }
     setStatus("loading");
     setError("");
-    setRecentSearches((previous) =>
-      [
-        query.trim(),
-        ...previous.filter(
-          (item) => item.toLowerCase() !== query.trim().toLowerCase(),
-        ),
-      ].slice(0, 4),
-    );
+    
+    const newSearches = [
+      query.trim(),
+      ...recentSearches.filter(
+        (item) => item.toLowerCase() !== query.trim().toLowerCase(),
+      ),
+    ].slice(0, 5);
+    setRecentSearches(newSearches);
+    try {
+      window.localStorage.setItem("namma-flow-recent-searches", JSON.stringify(newSearches));
+    } catch (e) {
+      // ignore quota errors
+    }
     try {
       setActiveCategory("");
       setResult(
@@ -324,25 +338,45 @@ export default function CompassPage() {
           {error}
         </p>
       )}
-      {!suggestions.length && (
-        <p className="mt-8 text-sm font-bold text-muted">
-          No places match those filters yet. Try another neighborhood or vibe.
-        </p>
-      )}
+      
+      <div className="mt-8 mb-8 border-2 border-ink rounded-xl overflow-hidden bg-[#E9DFC7]">
+        <CompassMap 
+          recommendedZone={result?.verdict ? result.verdict.zone : currentZone}
+          suggestions={suggestions}
+          redirectSuggestions={result?.redirectSuggestions || []}
+        />
+      </div>
+
       <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {suggestions.map((suggestion) => {
-          const zoneKey = suggestion.zoneId || suggestion.zone;
-          const congestion = suggestion.congestionPercent ?? getCongestionForZone(zoneKey);
-          return (
-            <SuggestionCard
-              key={suggestion.id}
-              suggestion={suggestion}
-              congestion={congestion}
-              zoneName={findZone(zoneKey)?.name || suggestion.zone}
-              showDiscount={congestion < currentCongestion}
-            />
-          );
-        })}
+        {status === "loading" ? (
+          Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="animate-pulse flex flex-col justify-between rounded-[18px] border-2 border-ink bg-panel p-5 min-h-[160px]">
+              <div>
+                <div className="h-5 w-3/4 bg-[#E9DFC7] rounded"></div>
+                <div className="h-3 w-1/2 bg-[#E9DFC7] rounded mt-2"></div>
+              </div>
+              <div className="h-6 w-16 bg-[#E9DFC7] rounded self-end mt-4"></div>
+            </div>
+          ))
+        ) : suggestions.length === 0 ? (
+          <p className="mt-8 text-sm font-bold text-muted col-span-full">
+            No places match those filters yet. Try another neighborhood or vibe.
+          </p>
+        ) : (
+          suggestions.map((suggestion) => {
+            const zoneKey = suggestion.zoneId || suggestion.zone;
+            const congestion = suggestion.congestionPercent ?? getCongestionForZone(zoneKey);
+            return (
+              <SuggestionCard
+                key={suggestion.id}
+                suggestion={suggestion}
+                congestion={congestion}
+                zoneName={findZone(zoneKey)?.name || suggestion.zone}
+                showDiscount={congestion < currentCongestion}
+              />
+            );
+          })
+        )}
       </div>
       {result?.verdict && (
         <div className="mt-8 rounded-[18px] border-2 border-ink bg-[#FFC22E] p-5">

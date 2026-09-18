@@ -17,14 +17,13 @@ export async function handler(event = {}) {
 
   try {
     const body = typeof event.body === 'string' ? JSON.parse(event.body || '{}') : event.body ?? {}
-    const { origin, destination, currentTime } = body
+    const { origin, destination, currentTime, simRain } = body
     if (!origin || !destination) return response(400, { error: 'origin and destination are required' })
 
-    // TODO: Titiksha — replace demo route logic with the approved Grid integration.
-    const route = findRoute(origin, destination)
-    if (!route) return response(404, { error: 'No demo route found for those endpoints' })
+    const route = await findRoute(origin, destination)
+    if (!route) return response(404, { error: `No route found between ${origin} and ${destination}. Try selecting a valid zone from the dropdown.` })
 
-    const metrics = getTripMetrics(route, origin, destination, currentTime ? new Date(currentTime) : new Date())
+    const metrics = await getTripMetrics(route, origin, destination, currentTime ? new Date(currentTime) : new Date(), Boolean(simRain))
     return response(200, { route, ...metrics })
   } catch {
     return response(400, { error: 'Request body must be valid JSON' })

@@ -152,19 +152,10 @@ export async function getCompassResult(vibeQuery, currentZone = null, selectedZo
     }
 
     // Step 2: Extract category from vibe query
-    const category = extractCategory(vibeQuery.trim())
+    let category = extractCategory(vibeQuery.trim())
     if (!category) {
-      const errorMsg = `No suggestions found for "${vibeQuery}"`
-      return {
-        success: false,
-        category: null,
-        suggestions: [],
-        alternative: null,
-        discount: null,
-        message: errorMsg,
-        error: errorMsg,
-        source: 'mock',
-      }
+      // For the demo, allow dynamic searches to pass through!
+      category = vibeQuery.trim().toLowerCase()
     }
 
     // Step 3: Fetch suggestions — Google Places if API key exists, otherwise mock
@@ -192,6 +183,19 @@ export async function getCompassResult(vibeQuery, currentZone = null, selectedZo
     // Fall back to mock data if OSM returned nothing (e.g. network offline)
     if (rawSuggestions.length === 0) {
       rawSuggestions = getMockSuggestions(category, selectedZone || 'all')
+      
+      // If no static mock data matches this dynamic category/zone, generate a plausible one!
+      if (rawSuggestions.length === 0) {
+        rawSuggestions = [{
+          id: `mock-dynamic-${Date.now()}`,
+          name: `The ${category.charAt(0).toUpperCase() + category.slice(1)} Spot`,
+          address: `${zoneName} Main Road`,
+          rating: 4.2 + Math.random() * 0.7,
+          zone: zoneName,
+          category,
+          source: 'mock'
+        }]
+      }
       source = 'mock'
     }
 
@@ -210,8 +214,13 @@ export async function getCompassResult(vibeQuery, currentZone = null, selectedZo
     }
 
     // Step 4: Rank by zone congestion (least jammed first) + enrich with congestion metadata
-    const selectedZoneObject = selectedZone && selectedZone !== 'all'
-      ? zones.find((zone) => zone.id === selectedZone || zone.name === selectedZone)
+    let activeSearchZone = selectedZone
+    if (!activeSearchZone || activeSearchZone === 'all') {
+      activeSearchZone = currentZone // fallback to where the user is currently located
+    }
+    
+    const selectedZoneObject = activeSearchZone
+      ? zones.find((zone) => zone.id.toLowerCase() === activeSearchZone.toLowerCase() || zone.name.toLowerCase() === activeSearchZone.toLowerCase())
       : null
     const selectedCongestion = zoneCongestion(selectedZoneObject)
 

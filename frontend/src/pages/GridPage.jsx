@@ -27,9 +27,13 @@ export default function GridPage() {
     setError("");
     setResult(null);
     try {
+      const searchParams = new URLSearchParams(window.location.search);
+      const simRain = searchParams.get('simRain') === 'true';
+      
       const plan = await getTripPlan({
         origin: submittedOrigin,
         destination: submittedDestination,
+        simRain
       });
       if (!plan.route)
         throw new Error("No demo route found for those locations.");
@@ -101,10 +105,22 @@ export default function GridPage() {
             id="grid-map-container"
             className="min-h-[340px] overflow-hidden rounded-[4px] border-2 border-ink bg-[#E9DFC7]"
           >
-            <GridMap origin={origin} destination={destination} />
+            <GridMap 
+              origin={result?.route?.origin || origin} 
+              destination={result?.route?.destination || destination}
+              route={result?.route}
+            />
           </div>
         </div>
       </div>
+      
+      {/* Toast Notification for simulated rain penalty */}
+      {(result?.weather?.isRainingNow || new URLSearchParams(window.location.search).get('simRain') === 'true') && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#000000] text-panel px-6 py-3 rounded-full border border-ink shadow-lg font-bold text-sm flex items-center gap-3 animate-rise z-50">
+          <span className="text-xl">🌧️</span>
+          <span>Rain penalty applied! Congestion is spiking.</span>
+        </div>
+      )}
     </section>
   );
 }

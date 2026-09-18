@@ -16,10 +16,17 @@ export default function GridSearchForm({
 
   return (
     <form className="space-y-4" onSubmit={submit}>
+      <datalist id="zone-options">
+        <option value="Whitefield" />
+        <option value="Indiranagar" />
+        <option value="Koramangala" />
+        <option value="Varthur" />
+      </datalist>
       <label className="block text-xs font-extrabold uppercase tracking-[0.14em] text-muted">
         From
         <input
           className="field mt-2"
+          list="zone-options"
           value={origin}
           onChange={(event) => setOrigin(event.target.value)}
           placeholder="Whitefield"
@@ -29,6 +36,7 @@ export default function GridSearchForm({
         To
         <input
           className="field mt-2"
+          list="zone-options"
           value={destination}
           onChange={(event) => setDestination(event.target.value)}
           placeholder="Indiranagar"

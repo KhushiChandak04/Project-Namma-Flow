@@ -36,9 +36,14 @@ export default function AppShell({
           {toggle}
         </div>
       </header>
-      <main className="mx-auto max-w-[1440px] px-4 py-8 sm:px-8 lg:px-10 lg:py-12">
+      <main className="mx-auto max-w-[1440px] px-4 py-8 sm:px-8 lg:px-10 lg:py-12 flex-grow">
         {children}
       </main>
+      <footer className="border-t-2 border-ink bg-cream/95 py-4 text-center">
+        <p className="text-xs font-bold text-muted">
+          Data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" className="underline hover:text-ink">OpenStreetMap contributors</a>
+        </p>
+      </footer>
     </div>
   );
 }

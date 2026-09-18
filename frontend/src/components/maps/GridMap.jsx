@@ -48,15 +48,18 @@ function FitRouteButton({ routePoints }) {
 export default function GridMap({
   origin = "Whitefield",
   destination = "Indiranagar",
+  route = null
 }) {
-  const originZone = findZone(origin) || zones[0];
-  const destinationZone = findZone(destination) || zones[1];
-  const routePoints = [
-    [originZone.coordinates.lat, originZone.coordinates.lng],
-    [12.965, 77.695],
-    [12.982, 77.665],
-    [destinationZone.coordinates.lat, destinationZone.coordinates.lng],
-  ];
+  const originZone = findZone(route?.originId || origin) || zones[0];
+  const destinationZone = findZone(route?.destinationId || destination) || zones[1];
+  
+  // OSRM returns [lng, lat] for geojson, Leaflet needs [lat, lng]
+  const routePoints = route?.polyline 
+    ? route.polyline.map(coord => [coord[1], coord[0]])
+    : [
+        [originZone.coordinates.lat, originZone.coordinates.lng],
+        [destinationZone.coordinates.lat, destinationZone.coordinates.lng],
+      ];
 
   return (
     <div className="grid-map-shell">
@@ -114,6 +117,27 @@ export default function GridMap({
             You&apos;ll arrive here.
           </Popup>
         </CircleMarker>
+        
+        {/* Live Incident Simulation */}
+        {routePoints.length > 5 && (
+          <CircleMarker
+            center={routePoints[Math.floor(routePoints.length / 2)]}
+            radius={8}
+            pathOptions={{
+              color: "#221B14",
+              weight: 2,
+              fillColor: "#000000",
+              fillOpacity: 1,
+            }}
+          >
+            <Popup>
+              <strong className="text-[#E1432B]">⚠️ Demo Incident</strong>
+              <br />
+              Waterlogging reported on this stretch. We&apos;ve rerouted you.
+            </Popup>
+          </CircleMarker>
+        )}
+
         {zones.map((zone) => {
           const position = [zone.coordinates.lat, zone.coordinates.lng];
           const congestion = zone.congestion.daytime;

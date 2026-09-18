@@ -35,8 +35,43 @@ export default function RouteResultCard({ result }) {
           </p>
         </div>
       </div>
+      <div className="route-reveal-row mt-4 mb-2 p-3 bg-[#E9DFC7] rounded-lg border-2 border-ink flex items-center justify-between" style={{ "--reveal-delay": "120ms" }}>
+        <div>
+          <p className="text-xs font-black uppercase tracking-wider text-muted">Bangalore Chaos Score</p>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="font-display text-2xl font-black">{result.chaosScore || 0}/100</span>
+            <span 
+              className="cursor-help text-sm rounded-full bg-panel border border-ink px-2 py-0.5" 
+              title={`Inputs:\n- Base Congestion: ${result.congestion}%\n- Rush Hour: ${result.isRushHour ? 'Yes' : 'No'}\n- Rain: ${result.weather?.isRainingNow ? 'Active' : result.weather?.rainExpected ? 'Expected' : 'Clear'}`}
+            >
+              ℹ️
+            </span>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-xs text-muted font-bold">Past 3 hrs</p>
+          {/* Simulated sparkline - strictly for demo visuals, not real history */}
+          <div className="flex items-end gap-1 h-6 mt-1 opacity-60">
+            <div className="w-2 bg-ink" style={{height: `${Math.max(10, (result.chaosScore || 50) - 20)}%`}}></div>
+            <div className="w-2 bg-ink" style={{height: `${Math.max(10, (result.chaosScore || 50) - 10)}%`}}></div>
+            <div className="w-2 bg-[#E1432B]" style={{height: `${result.chaosScore || 50}%`}}></div>
+          </div>
+        </div>
+      </div>
+
+      {(result.weather?.isRainingNow || result.weather?.rainExpected) && (
+        <div className="route-reveal-row mb-4 p-3 bg-[#F2711C]/20 border border-[#F2711C] rounded-lg text-sm" style={{ "--reveal-delay": "180ms" }}>
+          <strong>🌧️ Weather Impact:</strong> 
+          <span className="ml-1">
+            Without rain: {result.travelDurationNoRain} min. 
+            With rain: {result.travelDuration} min 
+            (+{Math.round(((result.travelDuration - result.travelDurationNoRain) / result.travelDurationNoRain) * 100)}%)
+          </span>
+        </div>
+      )}
+
       <p
-        className="route-reveal-row py-4 text-sm font-bold"
+        className="route-reveal-row py-2 text-sm font-bold"
         style={{ "--reveal-delay": "220ms" }}
       >
         A mixed-mode route that keeps you moving through the city.

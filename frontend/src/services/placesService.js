@@ -92,9 +92,15 @@ export async function searchPlacesForCategory(category, zone = 'Bangalore', maxR
   const query = buildOverpassQuery(osmTag, bbox, maxResults)
 
   try {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 4000)
+
     const response = await fetch(`${OVERPASS_URL}?data=${encodeURIComponent(query)}`, {
       headers: { Accept: 'application/json' },
+      signal: controller.signal
     })
+    
+    clearTimeout(timeoutId)
 
     if (!response.ok) {
       console.error(`[PlacesService] Overpass API error: ${response.status}`)
