@@ -33,10 +33,10 @@
 
 - [x] Grid/Compass starter component interfaces
 - [x] Leaflet map integration surfaces
-- [ ] Final Grid UI and map
-- [ ] Final Grid logic and `/trip-plan` integration
-- [ ] Final Compass UI and map
-- [ ] Final Compass logic and `/vibe-search` integration
+- [x] Final Grid UI and map
+- [x] Final Grid logic and `/trip-plan` integration
+- [x] Final Compass UI and map
+- [x] Final Compass logic and `/vibe-search` integration
 
 ## PHASE 5 — AWS
 

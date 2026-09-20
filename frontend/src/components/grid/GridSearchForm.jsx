@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 export default function GridSearchForm({
   onSearch,
@@ -6,8 +7,15 @@ export default function GridSearchForm({
   initialDestination = "Indiranagar",
   loading = false,
 }) {
+  const location = useLocation();
   const [origin, setOrigin] = useState(initialOrigin);
-  const [destination, setDestination] = useState(initialDestination);
+  const [destination, setDestination] = useState(location.state?.prefillDestination || initialDestination);
+
+  useEffect(() => {
+    if (location.state?.prefillDestination) {
+      setDestination(location.state.prefillDestination);
+    }
+  }, [location.state]);
 
   function submit(event) {
     event.preventDefault();

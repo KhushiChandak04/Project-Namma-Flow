@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+
 const congestionStyles = {
   HIGH: "bg-[#E1432B] text-[#FBF6EA]",
   MODERATE: "bg-[#F2711C] text-[#FBF6EA]",
@@ -10,6 +12,7 @@ export default function SuggestionCard({
   zoneName,
   showDiscount = false,
 }) {
+  const navigate = useNavigate();
   if (!suggestion) return null;
 
   const level =
@@ -17,8 +20,15 @@ export default function SuggestionCard({
   const hasDiscount =
     showDiscount && (suggestion.discount || suggestion.discountLabel);
 
+  const handleClick = () => {
+    navigate('/', { state: { prefillDestination: suggestion.name } });
+  };
+
   return (
-    <article className="group relative overflow-hidden rounded-[18px] border-2 border-ink bg-panel transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-1 hover:border-[#E1432B] hover:shadow-[4px_4px_0_#221B14]">
+    <article 
+      onClick={handleClick}
+      className="group relative cursor-pointer overflow-hidden rounded-[18px] border-2 border-ink bg-panel transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-1 hover:scale-[1.02] hover:border-[#E1432B] hover:shadow-[4px_4px_0_#221B14]"
+    >
       <div className="relative h-28 overflow-hidden bg-gradient-to-br from-[#E1432B] via-[#F2711C] to-[#FFC22E] p-4">
         <div className="absolute -right-5 -top-10 h-32 w-32 rounded-full border-[18px] border-[#FBF6EA]/25 transition-transform duration-500 group-hover:rotate-12" />
         <span className="relative rounded-full border-2 border-ink bg-panel px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.13em]">

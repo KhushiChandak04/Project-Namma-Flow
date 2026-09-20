@@ -77,24 +77,52 @@ export default function RouteResultCard({ result }) {
         A mixed-mode route that keeps you moving through the city.
       </p>
       <div className="space-y-3">
-        {result.route.segments.map((segment, index) => (
-          <div
-            key={`${segment.mode}-${segment.label}`}
-            className="route-reveal-row flex items-center gap-3 border-l-4 py-1 pl-3"
-            style={{
-              borderColor: segmentColors[segment.mode] || "#221B14",
-              "--reveal-delay": `${340 + index * 130}ms`,
-            }}
-          >
-            <span className="font-mono-data text-xs font-bold text-muted">
-              0{index + 1}
-            </span>
-            <span className="font-bold">{segment.label || segment.mode}</span>
-            <span className="ml-auto text-xs font-extrabold uppercase tracking-wider text-muted">
-              {segment.mode}
-            </span>
-          </div>
-        ))}
+        {result.route.segments.map((segment, index) => {
+          const nextSegment = result.route.segments[index + 1];
+          const isTransition = nextSegment && segment.mode !== nextSegment.mode;
+          let hint = null;
+          
+          if (isTransition) {
+            const combinedLabels = ((segment.label || "") + " " + (nextSegment.label || "")).toLowerCase();
+            if (combinedLabels.includes("majestic") || combinedLabels.includes("kempegowda")) {
+              hint = "Take Gate A for the BMTC Bus Stand interchange.";
+            } else if (combinedLabels.includes("indiranagar")) {
+              hint = "Take Exit B for the 100ft Road Auto Stand.";
+            } else if (combinedLabels.includes("mg road")) {
+              hint = "Use the Church Street exit for the prepaid auto queue.";
+            }
+          }
+
+          return (
+            <div key={`${segment.mode}-${segment.label}-${index}`} className="flex flex-col">
+              <div
+                className="route-reveal-row flex items-center gap-3 border-l-4 py-1 pl-3"
+                style={{
+                  borderColor: segmentColors[segment.mode] || "#221B14",
+                  "--reveal-delay": `${340 + index * 130}ms`,
+                }}
+              >
+                <span className="font-mono-data text-xs font-bold text-muted">
+                  0{index + 1}
+                </span>
+                <span className="font-bold">{segment.label || segment.mode}</span>
+                <span className="ml-auto text-xs font-extrabold uppercase tracking-wider text-muted">
+                  {segment.mode}
+                </span>
+              </div>
+              {hint && (
+                <div
+                  className="route-reveal-row ml-[18px] mt-2 mb-1"
+                  style={{ "--reveal-delay": `${340 + index * 130 + 65}ms` }}
+                >
+                  <div className="inline-flex items-center gap-1.5 rounded bg-panel px-3 py-1.5 text-xs font-bold text-ink border-2 border-ink shadow-[2px_2px_0px_0px_rgba(34,27,20,1)]">
+                    <span aria-hidden="true">💡</span> {hint}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
       <div
         className="route-reveal-row mt-5 flex items-center justify-between gap-4 border-t-2 border-dashed border-ink pt-4"
