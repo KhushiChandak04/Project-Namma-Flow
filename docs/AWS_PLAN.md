@@ -1,40 +1,15 @@
 # Namma Flow — AWS Plan
 
-## Current MVP
+## Current status
 
-The frontend uses local simulated data so the team can build the Grid and Compass end-to-end before cloud integration.
-The Vite application lives in `frontend/`; Amplify must build there and publish `frontend/dist`.
+Namma Flow is a static frontend with simulated data and pure frontend trip-planning logic. No AWS services are in use, and there is no live or deployed Lambda, API Gateway, Amplify, DynamoDB, or Bedrock integration.
 
-## Planned Ship It architecture
+The former AWS-compatible backend code is retained under `experiments/backend-aws/` for reference only. It is not imported by the frontend and is not part of the application runtime.
 
-```text
-Browser / PWA
-    |
-    v
-AWS Amplify Hosting
-    |
-    +--------------------+
-    |                    |
-    v                    v
-API Gateway          API Gateway
- /trip-plan           /vibe-search
-    |                    |
-    v                    v
-Lambda               Lambda
-    |                    |
-    +-------> DynamoDB  |
-                         v
-                    Amazon Bedrock
-```
+## Future work
 
-## Service responsibilities
+Any cloud architecture is explicitly out of scope for the current MVP. If a future iteration adds hosted services, it must document and verify those integrations separately rather than treating the parked experiments as deployed infrastructure.
 
-- Amplify Hosting: deploy the React/Vite frontend.
-- API Gateway: public HTTP endpoints for backend calls.
-- Lambda: serverless trip-planning and vibe-search handlers.
-- DynamoDB: optional cache for zone/route/traffic data.
-- Bedrock: natural-language vibe → structured category/intention for Compass.
+## Configuration
 
-## Secrets
-
-Do not place AWS access keys in Vite environment variables. Browser-visible `VITE_*` variables are not secret. Use AWS IAM roles/profiles for local CLI work and Lambda execution roles for deployed functions.
+`.env.example` contains only browser-visible `VITE_*` configuration. Do not add credentials or backend-only secrets to frontend environment files.

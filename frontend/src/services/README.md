@@ -27,8 +27,8 @@ Expected backend response:
 {
   "suggestions": [],
   "recommendedZone": "koramangala",
-  "discount": "10% demo offer"
+  "discount": "Concept: no transit partner yet."
 }
 ```
 
-Set `VITE_USE_MOCK_API=false` once API Gateway endpoints are ready.
+Trip planning is implemented entirely in the frontend. The archived backend experiments under `experiments/backend-aws/` are not used by this service.

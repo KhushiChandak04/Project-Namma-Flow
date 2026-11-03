@@ -21,6 +21,7 @@ import {
   getAlternativeZone,
   getDiscountForAlternative,
 } from '../logic/compassLogic.js'
+import { getZoneCongestion } from '../logic/congestion.js'
 import { searchPlacesForCategory } from './placesService.js'
 import { zones } from '../data/zones.js'
 import { vibes } from '../data/vibes.js'
@@ -35,17 +36,6 @@ const toColor = (pct) => {
   if (pct >= 60) return 'orange'
   if (pct >= 40) return 'yellow'
   return 'green'
-}
-
-/**
- * Safely reads congestion.now from a zone object.
- * @param {Object} zone
- * @returns {number}
- */
-const zoneCongestion = (zone) => {
-  if (!zone) return 0
-  if (typeof zone.congestion === 'number') return zone.congestion
-  return zone.congestion?.now ?? zone.congestion?.daytime ?? 0
 }
 
 const nearestZone = (location) => {
@@ -137,6 +127,7 @@ const mergePlacesWithZones = (googlePlaces, category) => {
  */
 export async function getCompassResult(vibeQuery, currentZone = null, selectedZone = 'all') {
   try {
+    const now = new Date()
     // Step 1: Validate input
     if (!vibeQuery || typeof vibeQuery !== 'string' || !vibeQuery.trim()) {
       return {
@@ -180,27 +171,14 @@ export async function getCompassResult(vibeQuery, currentZone = null, selectedZo
       source = 'openstreetmap'
     }
 
-    // Fall back to mock data if OSM returned nothing (e.g. network offline)
+    // Fall back to curated data if OSM returned nothing (e.g. network offline)
     if (rawSuggestions.length === 0) {
       rawSuggestions = getMockSuggestions(category, selectedZone || 'all')
-      
-      // If no static mock data matches this dynamic category/zone, generate a plausible one!
-      if (rawSuggestions.length === 0) {
-        rawSuggestions = [{
-          id: `mock-dynamic-${Date.now()}`,
-          name: `The ${category.charAt(0).toUpperCase() + category.slice(1)} Spot`,
-          address: `${zoneName} Main Road`,
-          rating: 4.2 + Math.random() * 0.7,
-          zone: zoneName,
-          category,
-          source: 'mock'
-        }]
-      }
       source = 'mock'
     }
 
     if (!rawSuggestions || rawSuggestions.length === 0) {
-      const errorMsg = `No ${category} found`
+      const errorMsg = 'No places found for that search yet.'
       return {
         success: false,
         category,
@@ -222,7 +200,7 @@ export async function getCompassResult(vibeQuery, currentZone = null, selectedZo
     const selectedZoneObject = activeSearchZone
       ? zones.find((zone) => zone.id.toLowerCase() === activeSearchZone.toLowerCase() || zone.name.toLowerCase() === activeSearchZone.toLowerCase())
       : null
-    const selectedCongestion = zoneCongestion(selectedZoneObject)
+    const selectedCongestion = getZoneCongestion(selectedZoneObject?.id, now)
 
     // Step 5: A selected high-traffic zone redirects the result set itself.
     let alternative = null
@@ -231,15 +209,17 @@ export async function getCompassResult(vibeQuery, currentZone = null, selectedZo
     let redirectSuggestions = []
 
     if (selectedZoneObject) {
-      const altZone = getAlternativeZone(selectedZoneObject.name)
+      const altZone = getAlternativeZone(selectedZoneObject.name, now)
       if (altZone) {
-        const altCongestion = zoneCongestion(altZone)
+        const altCongestion = getZoneCongestion(altZone.id, now)
         alternative = {
           name: altZone.name,
           congestion: altCongestion,
           congestionColor: toColor(altCongestion),
         }
         discount = getDiscountForAlternative(selectedZoneObject.name, altZone.name)
+          ? { text: 'Concept: no transit partner yet.' }
+          : null
         const alternativePlaces = await searchPlacesForCategory(category, altZone.name, 5)
         redirectSuggestions = alternativePlaces.length
           ? mergePlacesWithZones(alternativePlaces, category)
@@ -247,11 +227,11 @@ export async function getCompassResult(vibeQuery, currentZone = null, selectedZo
       }
     }
 
-    const ranked = rankByCongestion(primarySuggestions)
-    const enriched = enrichSuggestionsWithCongestion(ranked)
+    const ranked = rankByCongestion(primarySuggestions, now)
+    const enriched = enrichSuggestionsWithCongestion(ranked, now)
     const suggestions = enriched.slice(0, 5)
     const redirected = enrichSuggestionsWithCongestion(
-      rankByCongestion(redirectSuggestions),
+      rankByCongestion(redirectSuggestions, now),
     ).slice(0, 5)
 
     // Step 7: Build human-readable message
@@ -261,14 +241,14 @@ export async function getCompassResult(vibeQuery, currentZone = null, selectedZo
           congestion: selectedCongestion,
           text: `Traffic in ${selectedZoneObject.name} is very high at ${selectedCongestion}%. Try a similar ${categoryLabel(category)} in ${alternative?.name || 'Koramangala'} instead.`,
           alternative: alternative?.name || 'Koramangala',
-          incentive: discount?.text || '10% ride discount',
+          incentive: discount?.text || null,
         }
       : {
           zone: selectedZoneObject?.name || 'Bangalore',
           congestion: selectedCongestion,
           text: selectedZoneObject
             ? `Traffic in ${selectedZoneObject.name} is manageable at ${selectedCongestion}%. These are the best matching ${categoryLabel(category)} options there.`
-            : `Here are the best matching ${categoryLabel(category)} options across Bangalore, ranked by simulated traffic load.`,
+            : `Here are the best matching ${categoryLabel(category)} options across Bangalore, ranked by current traffic load.`,
           alternative: null,
           incentive: null,
         }

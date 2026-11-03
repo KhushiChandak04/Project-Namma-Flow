@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { searchVibe } from "../services/vibeService.js";
 import SuggestionCard from "../components/compass/SuggestionCard.jsx";
-import { getCongestionForZone } from "../utils/helpers.js";
+import { getZoneCongestion } from "../logic/congestion.js";
+import { getBlendedCongestion } from "../services/feedbackService.js";
 import { findZone, zones } from "../data/zones.js";
 import RevealHeadline from "../components/common/RevealHeadline.jsx";
 import { vibes } from "../data/vibes.js";
@@ -38,6 +39,7 @@ export default function CompassPage() {
       return [];
     }
   });
+  const [currentCongestionSnapshot, setCurrentCongestionSnapshot] = useState(null);
 
   const searchRequestRef = useRef(0);
   const searchInputRef = useRef(null);
@@ -106,7 +108,7 @@ export default function CompassPage() {
     }
   }
 
-  const suggestions = (result?.suggestions ?? staticPlaces).filter(
+  const suggestions = (result ? result.suggestions : staticPlaces).filter(
     (suggestion) => {
       const matchesCategory =
         !activeCategory ||
@@ -123,7 +125,18 @@ export default function CompassPage() {
     },
   );
   const displayZone = activePlace === "all" ? currentZone : activePlace;
-  const currentCongestion = getCongestionForZone(displayZone);
+  const currentCongestion = getZoneCongestion(displayZone, new Date());
+  useEffect(() => {
+    let active = true;
+    getBlendedCongestion(displayZone, new Date().getHours()).then((snapshot) => {
+      if (active) setCurrentCongestionSnapshot(snapshot);
+    });
+    return () => {
+      active = false;
+    };
+  }, [displayZone]);
+  const displayedCurrentCongestion =
+    currentCongestionSnapshot?.congestion ?? currentCongestion;
   function chooseCategory(label, value) {
     setActiveCategory(value);
     setQuery(label);
@@ -329,13 +342,21 @@ export default function CompassPage() {
         </p>
         <p className="mt-1 text-sm font-semibold text-muted">
           Explore lower-load places across Bangalore ·{" "}
-          <span className="font-mono-data">{currentCongestion}%</span> current
-          demo load
+          <span className="font-mono-data">{displayedCurrentCongestion}%</span>{" "}
+          current load
+          {currentCongestionSnapshot?.reportCount >= 3
+            ? ` · based on ${currentCongestionSnapshot.reportCount} reports`
+            : ""}
         </p>
       </div>
       {error && (
         <p className="mt-5 font-bold text-[#E1432B]" role="alert">
           {error}
+        </p>
+      )}
+      {result?.success === false && result.message && (
+        <p className="mt-5 font-bold text-muted" role="status">
+          {result.message}
         </p>
       )}
       
@@ -365,7 +386,7 @@ export default function CompassPage() {
         ) : (
           suggestions.map((suggestion) => {
             const zoneKey = suggestion.zoneId || suggestion.zone;
-            const congestion = suggestion.congestionPercent ?? getCongestionForZone(zoneKey);
+            const congestion = suggestion.congestionPercent ?? getZoneCongestion(zoneKey, new Date());
             return (
               <SuggestionCard
                 key={suggestion.id}
@@ -383,7 +404,7 @@ export default function CompassPage() {
           <p className="text-xs font-black uppercase tracking-[0.14em]">Compass verdict</p>
           <p className="mt-2 font-display text-xl font-black">{result.verdict.text}</p>
           {result.verdict.incentive && (
-            <p className="mt-2 text-sm font-extrabold">Incentive: {result.verdict.incentive}</p>
+            <p className="mt-2 text-sm font-extrabold">Incentive: Concept: no transit partner yet.</p>
           )}
         </div>
       )}
@@ -394,7 +415,7 @@ export default function CompassPage() {
               Try {result.alternative?.name} instead
             </p>
             <p className="mt-1 text-sm font-semibold text-muted">
-              Similar options with a lighter simulated traffic load.
+              Similar options with a lighter traffic load.
             </p>
           </div>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

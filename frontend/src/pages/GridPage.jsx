@@ -74,7 +74,7 @@ export default function GridPage() {
               Plan your flow
             </h3>
             <span className="rounded-full bg-[#E1432B] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-panel">
-              live demo
+              route planner
             </span>
           </div>
           <GridSearchForm
@@ -87,8 +87,7 @@ export default function GridPage() {
             </p>
           )}
           <p className="mt-8 border-t border-dashed border-ink pt-4 text-xs font-bold leading-relaxed text-muted">
-            Tip: try Whitefield → Indiranagar for the full multi-modal route
-            demo.
+            Choose any two locations to compare an estimated route.
           </p>
         </div>
         <div className="space-y-6">

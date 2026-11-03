@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import CongestionFeedback from "../common/CongestionFeedback.jsx";
+import { getBlendedCongestion } from "../../services/feedbackService.js";
 
 const congestionStyles = {
   HIGH: "bg-[#E1432B] text-[#FBF6EA]",
@@ -13,10 +16,24 @@ export default function SuggestionCard({
   showDiscount = false,
 }) {
   const navigate = useNavigate();
+  const [congestionSnapshot, setCongestionSnapshot] = useState(null);
+  const zoneId = suggestion?.zoneId || suggestion?.zone;
+
+  useEffect(() => {
+    if (!zoneId) return undefined;
+    let active = true;
+    getBlendedCongestion(zoneId, new Date().getHours()).then((snapshot) => {
+      if (active && snapshot) setCongestionSnapshot(snapshot);
+    });
+    return () => {
+      active = false;
+    };
+  }, [zoneId]);
   if (!suggestion) return null;
 
+  const displayCongestion = congestionSnapshot?.congestion ?? congestion;
   const level =
-    congestion >= 75 ? "HIGH" : congestion >= 55 ? "MODERATE" : "LOW";
+    displayCongestion >= 75 ? "HIGH" : displayCongestion >= 55 ? "MODERATE" : "LOW";
   const hasDiscount =
     showDiscount && (suggestion.discount || suggestion.discountLabel);
 
@@ -48,7 +65,7 @@ export default function SuggestionCard({
           </span>
           {hasDiscount && (
             <span className="shrink-0 rounded-full bg-ink px-2 py-1 text-[10px] font-extrabold text-panel">
-              10% off
+              Concept: no transit partner yet
             </span>
           )}
         </div>
@@ -59,9 +76,15 @@ export default function SuggestionCard({
           <span
             className={`rounded-full px-2.5 py-1 text-xs font-extrabold ${congestionStyles[level]}`}
           >
-            {level.toLowerCase()} load
+            {displayCongestion}% · {level.toLowerCase()} load
           </span>
         </div>
+        {congestionSnapshot?.reportCount >= 3 && (
+          <p className="mt-2 text-xs font-bold text-muted">
+            Based on {congestionSnapshot.reportCount} community reports.
+          </p>
+        )}
+        <CongestionFeedback zoneId={zoneId} className="mt-3" />
       </div>
     </article>
   );

@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
+const zones = ["Whitefield", "Indiranagar", "Koramangala", "Varthur"];
+
 export default function GridSearchForm({
   onSearch,
   initialOrigin = "Whitefield",
@@ -23,38 +25,48 @@ export default function GridSearchForm({
   }
 
   return (
-    <form className="space-y-4" onSubmit={submit}>
-      <datalist id="zone-options">
-        <option value="Whitefield" />
-        <option value="Indiranagar" />
-        <option value="Koramangala" />
-        <option value="Varthur" />
-      </datalist>
-      <label className="block text-xs font-extrabold uppercase tracking-[0.14em] text-muted">
-        From
-        <input
-          className="field mt-2"
-          list="zone-options"
-          value={origin}
-          onChange={(event) => setOrigin(event.target.value)}
-          placeholder="Whitefield"
-        />
-      </label>
-      <label className="block text-xs font-extrabold uppercase tracking-[0.14em] text-muted">
-        To
-        <input
-          className="field mt-2"
-          list="zone-options"
-          value={destination}
-          onChange={(event) => setDestination(event.target.value)}
-          placeholder="Indiranagar"
-        />
-      </label>
+    <form className="grid-route-form" onSubmit={submit}>
+      <div className="grid-route-fields">
+        <label className="grid-route-field">
+          <span className="grid-route-label">
+            <span className="grid-route-dot grid-route-dot-start" />
+            From
+          </span>
+          <span className="grid-route-select">
+            <select
+              className="field"
+              value={origin}
+              onChange={(event) => setOrigin(event.target.value)}
+              aria-label="Starting location"
+            >
+              {zones.map((zone) => <option key={zone} value={zone}>{zone}</option>)}
+            </select>
+            <span className="grid-route-chevron" aria-hidden="true">⌄</span>
+          </span>
+        </label>
+        <div className="grid-route-connector" aria-hidden="true" />
+        <label className="grid-route-field">
+          <span className="grid-route-label">
+            <span className="grid-route-dot grid-route-dot-end" />
+            To
+          </span>
+          <span className="grid-route-select">
+            <select
+              className="field"
+              value={destination}
+              onChange={(event) => setDestination(event.target.value)}
+              aria-label="Destination"
+            >
+              {zones.map((zone) => <option key={zone} value={zone}>{zone}</option>)}
+            </select>
+            <span className="grid-route-chevron" aria-hidden="true">⌄</span>
+          </span>
+        </label>
+      </div>
       <button
-        className="action-button action-button-grid"
+        className="action-button action-button-grid grid-route-submit"
         disabled={loading}
-        onClick={() => onSearch?.(origin, destination)}
-        type="button"
+        type="submit"
       >
         {loading ? "Finding a better way…" : "Find best route"}
         <span aria-hidden="true">↗</span>

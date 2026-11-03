@@ -1,61 +1,24 @@
-# Namma Flow — Master Checklist
+# Project checklist
 
-`[x]` means verified in the repository; `[ ]` means pending or planned.
+## Frontend
 
-## PHASE 1 — FOUNDATION
+- [x] React/Vite frontend builds from the repository root.
+- [x] Grid supports all four mock zones: Whitefield, Indiranagar, Koramangala, and Varthur.
+- [x] Compass searches curated places and OpenStreetMap-backed place results.
+- [x] Grid route planning works without the archived backend.
+- [x] Metro station lookup is isolated in `frontend/src/services/transitService.js`.
+- [x] Overpass station results are cached in memory and have a simulated-route fallback.
+- [x] Bus durations and transit legs are disclosed as estimates.
+- [x] Crowd congestion reports are optional and use Supabase when configured.
+- [x] Supabase reads have a ten-minute in-memory cache.
+- [x] Frontend tests cover category matching, congestion blending, departure thresholds, Compass results, and station routing.
+- [x] Production build outputs to `frontend/dist`.
 
-- [x] Vite + React setup
-- [x] Tailwind configuration
-- [x] Shared repository structure
-- [x] Frontend/backend split
-- [x] Root `.env.example`
-- [x] `.gitignore`
+## Not implemented
 
-## PHASE 2 — DATA
-
-- [x] `frontend/src/data/zones.js`
-- [x] `frontend/src/data/routes.js`
-- [x] `frontend/src/data/vibes.js`
-- [x] Central data exports
-- [x] Deterministic official demo responses
-
-## PHASE 3 — HELPERS
-
-- [x] Route lookup and fuzzy matching
-- [x] Time-of-day detection
-- [x] Congestion lookup
-- [x] Departure recommendation
-- [x] Travel-duration calculation
-- [x] Vibe mapping
-- [x] Congestion sorting
-
-## PHASE 4 — TEAM INTEGRATION
-
-- [x] Grid/Compass starter component interfaces
-- [x] Leaflet map integration surfaces
-- [x] Final Grid UI and map
-- [x] Final Grid logic and `/trip-plan` integration
-- [x] Final Compass UI and map
-- [x] Final Compass logic and `/vibe-search` integration
-
-## PHASE 5 — AWS
-
-- [ ] Amplify deployment verified
-- [ ] API Gateway configured
-- [x] Lambda-compatible `/trip-plan` skeleton
-- [x] Lambda-compatible `/vibe-search` skeleton
-- [ ] Lambda deployed
-- [ ] Bedrock integration verified
-- [ ] DynamoDB caching (optional)
-
-## PHASE 6 — FINAL
-
-- [x] Smoke test
-- [x] Production build
-- [ ] Mobile testing
-- [ ] End-to-end testing
-- [ ] Demo scenario 1: Whitefield to Indiranagar
-- [ ] Demo scenario 2: Indiranagar to Koramangala alternative
-- [ ] Demo scenario 3: live music search
-- [x] Architecture and team documentation
-- [ ] Submission readiness
+- [ ] Live traffic or live congestion feeds.
+- [ ] Live bus schedules.
+- [ ] Live transit ticketing, payments, or authentication.
+- [ ] Authenticated or abuse-resistant feedback submissions.
+- [ ] Machine-learning congestion prediction.
+- [ ] Archived AWS/Lambda backend deployment.

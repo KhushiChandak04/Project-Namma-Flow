@@ -1,0 +1,8 @@
+{
+  "name": "namma-flow-vibe-search",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "namma-flow-workspace": "file:../../.."
+  }
+}

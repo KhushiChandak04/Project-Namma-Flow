@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   CircleMarker,
   MapContainer,
@@ -9,6 +9,7 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { findZone, zones } from "../../data/zones.js";
+import { getBlendedCongestion } from "../../services/feedbackService.js";
 
 const defaultCenter = [12.96, 77.69];
 const congestionColor = (value) =>
@@ -50,8 +51,22 @@ export default function GridMap({
   destination = "Indiranagar",
   route = null
 }) {
+  const [congestionSnapshots, setCongestionSnapshots] = useState({});
   const originZone = findZone(route?.originId || origin) || zones[0];
   const destinationZone = findZone(route?.destinationId || destination) || zones[1];
+
+  useEffect(() => {
+    let active = true;
+    const hour = new Date().getHours();
+    Promise.all(
+      zones.map(async (zone) => [zone.id, await getBlendedCongestion(zone.id, hour)]),
+    ).then((entries) => {
+      if (active) setCongestionSnapshots(Object.fromEntries(entries));
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
   
   // OSRM returns [lng, lat] for geojson, Leaflet needs [lat, lng]
   const routePoints = route?.polyline 
@@ -117,30 +132,10 @@ export default function GridMap({
             You&apos;ll arrive here.
           </Popup>
         </CircleMarker>
-        
-        {/* Live Incident Simulation */}
-        {routePoints.length > 5 && (
-          <CircleMarker
-            center={routePoints[Math.floor(routePoints.length / 2)]}
-            radius={8}
-            pathOptions={{
-              color: "#221B14",
-              weight: 2,
-              fillColor: "#000000",
-              fillOpacity: 1,
-            }}
-          >
-            <Popup>
-              <strong className="text-[#E1432B]">⚠️ Demo Incident</strong>
-              <br />
-              Waterlogging reported on this stretch. We&apos;ve rerouted you.
-            </Popup>
-          </CircleMarker>
-        )}
-
         {zones.map((zone) => {
           const position = [zone.coordinates.lat, zone.coordinates.lng];
-          const congestion = zone.congestion.daytime;
+          const snapshot = congestionSnapshots[zone.id];
+          const congestion = snapshot?.congestion ?? zone.congestion.daytime;
           return (
             <CircleMarker
               key={zone.id}
@@ -156,7 +151,12 @@ export default function GridMap({
               <Popup>
                 <strong>{zone.name}</strong>
                 <br />
-                <span>{congestion}% simulated daytime load</span>
+                <span>
+                  {congestion}% ·{" "}
+                  {snapshot?.reportCount >= 3
+                    ? `based on ${snapshot.reportCount} reports`
+                    : "time-of-day baseline"}
+                </span>
               </Popup>
             </CircleMarker>
           );

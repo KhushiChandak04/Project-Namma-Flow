@@ -13,3 +13,4 @@ frontend/.env.*.local
 .DS_Store
 Thumbs.db
 npm-debug.log*
+.env.example

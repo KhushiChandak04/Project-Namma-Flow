@@ -27,6 +27,16 @@ function MapViewport({ suggestions, redirectSuggestions, recommendedZone }) {
   return null
 }
 
+function deterministicOffset(id, axis) {
+  const text = String(id ?? 'place')
+  let hash = 0
+  for (let index = 0; index < text.length; index += 1) {
+    hash = (hash * 31 + text.charCodeAt(index)) % 1000
+  }
+  const normalized = (hash / 999) - 0.5
+  return normalized * (axis === 'lat' ? 0.01 : 0.01)
+}
+
 export default function CompassMap({ recommendedZone = 'koramangala', suggestions = [], redirectSuggestions = [] }) {
   const allPoints = [...suggestions, ...redirectSuggestions]
   const defaultPos = findZone(recommendedZone)?.coordinates || { lat: 12.9352, lng: 77.6245 }
@@ -44,9 +54,8 @@ export default function CompassMap({ recommendedZone = 'koramangala', suggestion
         } else {
           const zone = findZone(suggestion.zoneId || suggestion.zone)
           if (!zone) return null
-          // slight random offset for mock data so they don't overlap perfectly
-          lat = zone.coordinates.lat + (Math.random() - 0.5) * 0.01
-          lng = zone.coordinates.lng + (Math.random() - 0.5) * 0.01
+          lat = zone.coordinates.lat + deterministicOffset(suggestion.id, 'lat')
+          lng = zone.coordinates.lng + deterministicOffset(`${suggestion.id}-lng`, 'lng')
         }
         
         const isRedirect = redirectSuggestions.some(s => s.id === suggestion.id)

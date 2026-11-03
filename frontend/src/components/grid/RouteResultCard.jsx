@@ -1,6 +1,23 @@
+import { useEffect, useState } from "react";
+import CongestionFeedback from "../common/CongestionFeedback.jsx";
+import { getBlendedCongestion } from "../../services/feedbackService.js";
+
 const segmentColors = { Bus: "#E1432B", Metro: "#221B14", Auto: "#FFC22E" };
 
 export default function RouteResultCard({ result }) {
+  const [congestionSnapshot, setCongestionSnapshot] = useState(null);
+  const routeZone = result?.route?.destination;
+
+  useEffect(() => {
+    if (!routeZone) return undefined;
+    let active = true;
+    getBlendedCongestion(routeZone, new Date().getHours()).then((snapshot) => {
+      if (active && snapshot) setCongestionSnapshot(snapshot);
+    });
+    return () => {
+      active = false;
+    };
+  }, [routeZone]);
   if (!result?.route) return null;
 
   const departureLabel = result.departureTime?.label || "Leave now";
@@ -37,25 +54,23 @@ export default function RouteResultCard({ result }) {
       </div>
       <div className="route-reveal-row mt-4 mb-2 p-3 bg-[#E9DFC7] rounded-lg border-2 border-ink flex items-center justify-between" style={{ "--reveal-delay": "120ms" }}>
         <div>
-          <p className="text-xs font-black uppercase tracking-wider text-muted">Bangalore Chaos Score</p>
+          <p className="text-xs font-black uppercase tracking-wider text-muted">Congestion heuristic (simulated)</p>
           <div className="flex items-center gap-2 mt-1">
             <span className="font-display text-2xl font-black">{result.chaosScore || 0}/100</span>
             <span 
               className="cursor-help text-sm rounded-full bg-panel border border-ink px-2 py-0.5" 
-              title={`Inputs:\n- Base Congestion: ${result.congestion}%\n- Rush Hour: ${result.isRushHour ? 'Yes' : 'No'}\n- Rain: ${result.weather?.isRainingNow ? 'Active' : result.weather?.rainExpected ? 'Expected' : 'Clear'}`}
+              title={`Formula inputs:\n- Base congestion: ${congestionSnapshot?.congestion ?? result.congestion}% (${congestionSnapshot?.reportCount >= 3 ? `${congestionSnapshot.reportCount} reports` : 'time-of-day baseline'})\n- Rush hour: ${result.isRushHour ? 'Yes' : 'No'}\n- Rain: ${result.weather?.isRainingNow ? 'Active' : result.weather?.rainExpected ? 'Expected' : 'Clear'}`}
             >
               ℹ️
             </span>
           </div>
-        </div>
-        <div className="text-right">
-          <p className="text-xs text-muted font-bold">Past 3 hrs</p>
-          {/* Simulated sparkline - strictly for demo visuals, not real history */}
-          <div className="flex items-end gap-1 h-6 mt-1 opacity-60">
-            <div className="w-2 bg-ink" style={{height: `${Math.max(10, (result.chaosScore || 50) - 20)}%`}}></div>
-            <div className="w-2 bg-ink" style={{height: `${Math.max(10, (result.chaosScore || 50) - 10)}%`}}></div>
-            <div className="w-2 bg-[#E1432B]" style={{height: `${result.chaosScore || 50}%`}}></div>
-          </div>
+          <p className="mt-2 text-xs font-bold text-muted">
+            Congestion: {congestionSnapshot?.congestion ?? result.congestion}% ·{" "}
+            {congestionSnapshot?.reportCount >= 3
+              ? `based on ${congestionSnapshot.reportCount} reports`
+              : "time-of-day baseline"}
+          </p>
+          <CongestionFeedback zoneId={routeZone} className="mt-3" />
         </div>
       </div>
 
@@ -76,25 +91,26 @@ export default function RouteResultCard({ result }) {
       >
         A mixed-mode route that keeps you moving through the city.
       </p>
+      <p
+        className="route-reveal-row py-2 text-sm font-bold"
+        style={{ "--reveal-delay": "280ms" }}
+      >
+        {result.route.transitSource === "overpass"
+          ? "Metro stations from OpenStreetMap. Transit times are estimated."
+          : "Estimated route. Transit legs are simulated."}
+      </p>
+      {result.route.transitSource === "overpass" && (
+        <p
+          className="route-reveal-row py-2 text-sm font-bold"
+          style={{ "--reveal-delay": "300ms" }}
+        >
+          Bus option: estimated only; bus timings are not live.
+        </p>
+      )}
       <div className="space-y-3">
         {result.route.segments.map((segment, index) => {
-          const nextSegment = result.route.segments[index + 1];
-          const isTransition = nextSegment && segment.mode !== nextSegment.mode;
-          let hint = null;
-          
-          if (isTransition) {
-            const combinedLabels = ((segment.label || "") + " " + (nextSegment.label || "")).toLowerCase();
-            if (combinedLabels.includes("majestic") || combinedLabels.includes("kempegowda")) {
-              hint = "Take Gate A for the BMTC Bus Stand interchange.";
-            } else if (combinedLabels.includes("indiranagar")) {
-              hint = "Take Exit B for the 100ft Road Auto Stand.";
-            } else if (combinedLabels.includes("mg road")) {
-              hint = "Use the Church Street exit for the prepaid auto queue.";
-            }
-          }
-
           return (
-            <div key={`${segment.mode}-${segment.label}-${index}`} className="flex flex-col">
+            <div key={`${segment.mode}-${segment.label}-${index}`}>
               <div
                 className="route-reveal-row flex items-center gap-3 border-l-4 py-1 pl-3"
                 style={{
@@ -110,20 +126,23 @@ export default function RouteResultCard({ result }) {
                   {segment.mode}
                 </span>
               </div>
-              {hint && (
-                <div
-                  className="route-reveal-row ml-[18px] mt-2 mb-1"
-                  style={{ "--reveal-delay": `${340 + index * 130 + 65}ms` }}
-                >
-                  <div className="inline-flex items-center gap-1.5 rounded bg-panel px-3 py-1.5 text-xs font-bold text-ink border-2 border-ink shadow-[2px_2px_0px_0px_rgba(34,27,20,1)]">
-                    <span aria-hidden="true">💡</span> {hint}
-                  </div>
-                </div>
-              )}
             </div>
           );
         })}
       </div>
+      {result.route.busOption && (
+        <div className="mt-4 border-t-2 border-dashed border-ink pt-4">
+          <p className="text-xs font-extrabold uppercase tracking-wider text-muted">
+            Alternative
+          </p>
+          <div className="mt-2 flex items-center gap-3 border-l-4 border-[#E1432B] py-1 pl-3">
+            <span className="font-bold">{result.route.busOption.label}</span>
+            <span className="ml-auto text-xs font-extrabold uppercase tracking-wider text-muted">
+              {result.route.busOption.durationMinutes} min
+            </span>
+          </div>
+        </div>
+      )}
       <div
         className="route-reveal-row mt-5 flex items-center justify-between gap-4 border-t-2 border-dashed border-ink pt-4"
         style={{

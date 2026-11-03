@@ -2,31 +2,25 @@
 
 ## Current MVP
 
-The browser application lives in `frontend/` and uses React, Vite, and Tailwind CSS. `frontend/src/data/` contains simulated zones, routes, and vibe suggestions. `frontend/src/utils/helpers.js` owns deterministic matching, time-of-day, congestion, departure, duration, and sorting rules.
+Namma Flow is a static frontend application in `frontend/` built with React, Vite, and Tailwind CSS. It uses simulated zones, routes, and vibe suggestions stored in `frontend/src/data/`. Grid trip planning is implemented as pure frontend logic in `frontend/src/logic/tripLogic.js`.
 
-React pages call `frontend/src/services/tripService.js` and `vibeService.js`. Those services default to local data and can switch to HTTP through `VITE_API_BASE_URL`; components do not own fetch calls or backend credentials.
+There are no AWS services in use. The browser does not call Lambda, API Gateway, Bedrock, DynamoDB, or any other deployed backend. The former backend code is kept for reference under `experiments/backend-aws/` and is not part of the frontend build.
 
-The map surface is isolated behind `frontend/src/components/maps/GridMap.jsx` and `CompassMap.jsx`, so the frontend owners can refine Leaflet behavior without coupling map code to business rules.
+The map surface is isolated behind `frontend/src/components/maps/GridMap.jsx` and `CompassMap.jsx`, so map behavior remains separate from business rules.
 
-## Planned AWS path
+## Runtime flow
 
 ```mermaid
 flowchart TD
-  Browser[React Vite frontend] --> Amplify[AWS Amplify Hosting]
-  Browser --> APIG[API Gateway]
-  APIG --> Trip[Lambda: trip-plan]
-  APIG --> Vibe[Lambda: vibe-search]
-  Trip --> Traffic[Traffic and route provider]
-  Vibe --> Bedrock[Amazon Bedrock]
-  Trip -. optional cache .-> Dynamo[DynamoDB]
+  Browser[React Vite frontend] --> Data[Static demo data]
+  Browser --> Logic[Pure trip and Compass logic]
+  Logic --> UI[Grid and Compass pages]
 ```
 
-`backend/lambdas/` contains API Gateway-compatible handlers with CORS, input validation, JSON responses, and deterministic demo services. They are not deployed by this repository yet. `backend/services/bedrockService.js` intentionally uses local classification and documents the future Bedrock boundary.
+## Environment
 
-## Environment and security
+Copy `.env.example` to `frontend/.env.local` for Vite. Only `VITE_*` variables belong in this file; values are browser-visible and must not contain secrets.
 
-Only safe public configuration belongs in the root `.env.example`; copy it to `frontend/.env.local` for Vite. It currently documents `VITE_API_BASE_URL` and `VITE_USE_MOCK_API`. AWS access keys, Bedrock credentials, and private API keys must stay in IAM roles, local AWS profiles, or deployed secret configuration, never in `VITE_*` variables.
+## Archived backend
 
-## Collaboration boundaries
-
-Data/helpers and AWS preparation remain separate from the Grid UI, Grid integration, and Compass workstreams. See `docs/TEAM_CONTRACTS.md` for ownership and contracts.
+`experiments/backend-aws/` contains the retained AWS/Lambda experiments. It is intentionally parked and unused. See `docs/TEAM_CONTRACTS.md` for collaboration boundaries.

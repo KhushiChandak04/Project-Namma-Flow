@@ -11,7 +11,6 @@ export const zones = [
     name: 'Whitefield',
     type: 'commuter',
     congestion: {
-      now: 76,
       morning: 82,
       daytime: 54,
       evening: 76,
@@ -23,7 +22,6 @@ export const zones = [
     name: 'Indiranagar',
     type: 'mixed',
     congestion: {
-      now: 88,
       morning: 64,
       daytime: 58,
       evening: 88,
@@ -35,7 +33,6 @@ export const zones = [
     name: 'Koramangala',
     type: 'mixed',
     congestion: {
-      now: 62,
       morning: 58,
       daytime: 62,
       evening: 79,
@@ -47,7 +44,6 @@ export const zones = [
     name: 'Varthur',
     type: 'residential',
     congestion: {
-      now: 42,
       morning: 71,
       daytime: 42,
       evening: 63,

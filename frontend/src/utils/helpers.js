@@ -1,19 +1,4 @@
-import { findZone } from '../data/zones.js'
-
-export const TIME_PERIODS = {
-  morning: { start: 6, end: 11 },
-  daytime: { start: 11, end: 17 },
-  evening: { start: 17, end: 23 },
-}
-
-export function getTimePeriod(date = new Date()) {
-  const hour = date.getHours()
-
-  if (hour >= TIME_PERIODS.morning.start && hour < TIME_PERIODS.morning.end) return 'morning'
-  if (hour >= TIME_PERIODS.daytime.start && hour < TIME_PERIODS.daytime.end) return 'daytime'
-  if (hour >= TIME_PERIODS.evening.start && hour < TIME_PERIODS.evening.end) return 'evening'
-  return hour < 6 ? 'morning' : 'evening'
-}
+import { getZoneCongestion } from '../logic/congestion.js'
 
 export function normalizeText(value) {
   return String(value ?? '')
@@ -77,52 +62,11 @@ export function findRoute(origin, destination, routes) {
   return candidates[0]?.route ?? null
 }
 
-export function getCongestionForZone(zone, date = new Date()) {
-  const resolvedZone = typeof zone === 'string' ? findZone(zone) : zone
-  if (!resolvedZone) return 0
-
-  const period = getTimePeriod(date)
-  return resolvedZone.congestion?.[period] ?? 0
-}
-
-export function getDepartureTime(destination, zones, now = new Date()) {
-  const resolvedZone = typeof destination === 'string' ? findZoneFromCollection(destination, zones) : destination
-  if (!resolvedZone) {
-    return {
-      label: 'Leave NOW',
-      delayMinutes: 0,
-      congestion: 0,
-      period: getTimePeriod(now),
-    }
-  }
-
-  const period = getTimePeriod(now)
-  const congestion = resolvedZone.congestion?.[period] ?? 0
-
-  if (congestion >= 85) {
-    return { label: 'Leave in 20 mins', delayMinutes: 20, congestion, period }
-  }
-  if (congestion >= 70) {
-    return { label: 'Leave in 10 mins', delayMinutes: 10, congestion, period }
-  }
-  return { label: 'Leave NOW', delayMinutes: 0, congestion, period }
-}
-
-function findZoneFromCollection(query, zones) {
-  if (!Array.isArray(zones)) return null
-
-  return zones
-    .map((zone) => ({ zone, score: fuzzyZoneScore(query, zone.name) }))
-    .sort((a, b) => b.score - a.score)[0]?.zone ?? null
-}
-
 export function estimateTravelDuration(route, destinationZone, date = new Date(), zones = []) {
   if (!route) return 0
 
-  const congestion = getCongestionForZone(destinationZone, date)
-  const resolvedZone = typeof destinationZone === 'string' ? findZoneFromCollection(destinationZone, zones) : destinationZone
-  const originCongestion = resolvedZone ? getCongestionForZone(resolvedZone, date) : congestion
-  const averageCongestion = Math.max(congestion, originCongestion)
+  const congestion = getZoneCongestion(destinationZone?.id ?? destinationZone, date)
+  const averageCongestion = congestion
   const multiplier = 1 + Math.min(averageCongestion, 100) / 160
 
   return Math.max(route.baseDurationMinutes, Math.round(route.baseDurationMinutes * multiplier))
@@ -150,14 +94,10 @@ export function sortSuggestionsByCongestion(suggestions, zones, date = new Date(
   if (!Array.isArray(suggestions)) return []
 
   return [...suggestions].sort((a, b) => {
-    const congestionA = getCongestionForZone(a.zoneId, dateWithZones(date, zones))
-    const congestionB = getCongestionForZone(b.zoneId, dateWithZones(date, zones))
+    const congestionA = getZoneCongestion(a.zoneId, date)
+    const congestionB = getZoneCongestion(b.zoneId, date)
     return congestionA - congestionB
   })
-}
-
-function dateWithZones(date) {
-  return date
 }
 
 export function getZoneLabel(zoneId, zones) {
@@ -187,4 +127,3 @@ export const getCongestionColor = (percentage) => {
   if (percentage >= 40) return 'yellow'
   return 'green'
 }
-
