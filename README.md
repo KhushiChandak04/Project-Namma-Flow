@@ -49,7 +49,7 @@ npm run dev
 
 ### Deploy to Vercel
 
-The repository includes [vercel.json](./vercel.json). In Vercel, import the repository without changing the root directory. The configured build command is `npm run build`, the output directory is `frontend/dist`, and the rewrite sends client-side routes to `index.html`.
+In Vercel, import the repository and set the project root directory to `frontend`. [frontend/vercel.json](./frontend/vercel.json) installs from the frontend lockfile, builds with `npm run build`, publishes `dist`, and rewrites client-side routes to `index.html`.
 
 Frontend environment variables are browser-visible and must contain only public `VITE_*` values:
 
